@@ -1,0 +1,16 @@
+# CSG MH Problem:
+#  NoClassDefFoundError: org/springframework/security/config/http/SessionCreationPolicy
+# Workaround:
+#  Using Spring Boot Actuator 1.4.1 and got this issue.
+#  I had to add Spring Boot Security starter dependency to solve this. 
+# security:
+# basic:
+#    enabled: false
+#  user:
+#    name: user
+#    password: test1234
+
+spring:
+  rabbitmq:
+    host: 172.17.0.2
+    port: 5672
