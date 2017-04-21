@@ -113,12 +113,12 @@ class MessageRestController {
 }
 
 @Component
-class SampleRecordsCLR implements CommandLineRunner {
+class SampleDataCLR implements CommandLineRunner {
 
 	private final ReservationRepository reservationRepository;
 
 	@Autowired
-	public SampleRecordsCLR(ReservationRepository reservationRepository) {
+	public SampleDataCLR(ReservationRepository reservationRepository) {
 		this.reservationRepository = reservationRepository;
 	}
 
@@ -144,10 +144,17 @@ class Reservation {
 
 	@Id
 	@GeneratedValue
-	private Long id;  // id
+	private Long id; 
 
-	private String reservationName;  // reservation_name
+	private String reservationName; 
 
+	Reservation() {// why JPA why???
+	}
+
+	public Reservation(String reservationName) {
+		this.reservationName = reservationName;
+	}
+	
 	public Long getId() {
 		return id;
 	}
@@ -162,13 +169,5 @@ class Reservation {
 				"id=" + id +
 				", reservationName='" + reservationName + '\'' +
 				'}';
-	}
-
-	Reservation() {// why JPA why???
-	}
-
-	public Reservation(String reservationName) {
-
-		this.reservationName = reservationName;
 	}
 }

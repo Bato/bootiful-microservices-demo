@@ -25,10 +25,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
 		<spring.cloud.release.version>Brixton.SR7</spring.cloud.release.version>
-<!-- 
-		Brixton.SR2, 
-        http://cloud.spring.io/spring-cloud-static/Brixton.SR7/
--->
 	</properties>
 
 	<dependencies>

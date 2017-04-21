@@ -1,6 +1,6 @@
 # bootiful-microservices-demo
 
-Demo Project for Spring Cloud based on  presentation from Josh Long
+Microservices – a demonstration project using Spring Boot and Spring Cloud based on excellent video tutorial with live-coding by Josh Long
 
 ## Links & Docks
 
