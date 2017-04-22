@@ -124,8 +124,8 @@ class SampleDataCLR implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Stream.of("Josh", "Jungryeol", "Nosung", "Hyobeom",
-				"Soeun", "Seunghue", "Peter", "Jooyong")
+		Stream.of("Josh", "Thivakar", "André", "Thomas", "Markus",
+				"Patrick", "Mugdin", "Uwe")
 				.forEach(name -> reservationRepository.save(new Reservation(name)));
 
 		reservationRepository.findAll().forEach(System.out::println);
