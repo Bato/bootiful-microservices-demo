@@ -85,12 +85,13 @@ You can also use Gradle as an alternative to Maven.
 === For the impatient developer
 
 
-```bash
+[source, bash]
+----
 cd /opt/src/microservices/
 git clone https://github.com/Bato/bootiful-microservices-demo.git
 cd bootiful-microservices-demo/
 mvn package -Dmaven.test.skip=true
-```
+----
 
 = Part 1: Spring Boot
 
@@ -962,54 +963,76 @@ curl -sL http://start.spring.io/starter.tgz  \
 .reservation-client/pom.xml
 [source, xml]
 ----
-        <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
-            <artifactId>spring-cloud-starter-zuul</artifactId>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-cloud-starter-web</artifactId>
+</dependency>
 
-            <artifactId>spring-cloud-starter-feign</artifactId>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-cloud-starter-data-rest</artifactId>
+</dependency>
 
-            <artifactId>spring-cloud-starter-hystrix</artifactId>
-            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
-            <artifactId>spring-cloud-starter-zipkin</artifactId>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-cloud-starter-actuator</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-config</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-eureka</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-zuul</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-feign</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-hystrix</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-zipkin</artifactId>
+</dependency>
 ----
 
 list of dependencies identifiers: 
 (the full dependency list curl https://start.spring.io > metata-data.txt)
-web 
- - Full-stack web development with Tomcat and Spring MVC
-data-jpa
- - Java Persistence API including spring-data-jpa, spring-orm and Hibernate
-data-rest
- - Exposing Spring Data repositories over REST via spring-data-rest-webmvc
- actuator
-  - Production ready features to help you monitor and manage your application 
-hateoas
- - HATEOAS-based RESTful services 
 
-cloud-config-client
- -spring-cloud-config Client 
-cloud-eureka
- - Service discovery using spring-cloud-netflix and Eureka 
-cloud-hystrix
- - Circuit breaker with spring-cloud-netflix Hystrix 
-cloud-zuul
- - Intelligent and programmable routing with spring-cloud-netflix Zuul
-cloud-feign 
- - Declarative REST clients with spring-cloud-netflix Feign 
-cloud-stream-binder-rabbit 
- -Messaging microservices with RabbitMQ
+- *web* - Full-stack web development with Tomcat and Spring MVC
+- *data-jpa* - Java Persistence API including spring-data-jpa, spring-orm and Hibernate
+- *data-rest* - Exposing Spring Data repositories over REST via spring-data-rest-webmvc
+- *actuator* - Production ready features to help you monitor and manage your application 
+- *hateoas* - HATEOAS-based RESTful services 
 
-cloud-hystrix-dashboard
- - Circuit breaker dashboard with spring-cloud-netflix Hystrix
-cloud-starter-zipkin
- - Distributed tracing with an existing Zipkin installation and spring-cloud-sleuth-zipkin. Alternatively, consider Sleuth Stream.|
-cloud-oauth2
- - OAuth2 and distributed application patterns with spring-cloud-security 
+- *cloud-config-client* - spring-cloud-config Client 
+- *cloud-eureka* - Service discovery using spring-cloud-netflix and Eureka 
+- *cloud-hystrix* - Circuit breaker with spring-cloud-netflix Hystrix 
+- *cloud-zuul* - Intelligent and programmable routing with spring-cloud-netflix Zuul
+- *cloud-feign* - Declarative REST clients with spring-cloud-netflix Feign 
+- *cloud-stream-binder-rabbit* - Messaging microservices with RabbitMQ
+
+- *cloud-hystrix-dashboard* - Circuit breaker dashboard with spring-cloud-netflix Hystrix
+- *cloud-starter-zipkin* - Distributed tracing with an existing Zipkin installation and spring-cloud-sleuth-zipkin. Alternatively, consider Sleuth Stream.|
+- *cloud-oauth2* - OAuth2 and distributed application patterns with spring-cloud-security 
 
 
 === Import Maven Project in Eclipse
@@ -1020,7 +1043,8 @@ File > Import ... > Maven > Existing Maven Projects:
 
 /opt/dev/wss/ws_bootiful_microservices_demo
 
-```java
+[source, java]
+----
 @EnableDiscoveryClient
 @SpringBootApplication
 public class ReservationClientApplication {
@@ -1029,7 +1053,7 @@ public class ReservationClientApplication {
 		SpringApplication.run(ReservationClientApplication.class, args);
 	}
 }
-```
+----
 
 bootstrap.properties
 
@@ -1045,7 +1069,8 @@ server.port=${PORT:9999}
 
 enable Zuul
 
-```java
+[source, java]
+----
 @EnableZuulProxy
 @EnableDiscoveryClient
 @SpringBootApplication
@@ -1054,11 +1079,14 @@ public class ReservationClientApplication {
         SpringApplication.run(ReservationClientApplication.class, args);
     }
 }
-```
+----
 
 Proxy from:
+    
     http://localhost:9999/reservation-service/reservations
+
 to
+
     http://localhost:8000/reservations
 
 *reservation-service* is service ID resoled by Zuul
@@ -1072,22 +1100,24 @@ with api-gateway we can enrich or transform request,  ptotokol or even ressource
 
 Transform reservation to just names e.g. ["Thivakar","Andr�","Uwe"]
 Endpoint should be:
+  
   http://localhost:9999/reservations/names
 
 we use  feign instead of @LoadBalanced RestTemplate
 @EnableFeignClients do Load balancing out of the box
 
-pom.xml
-```xml
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-feign</artifactId>
-        </dependency>
-pom.xml
-```
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-feign</artifactId>
+</dependency>
+----
 
 
-```java
+[source, java]
+----
 @EnableFeignClients
 @EnableZuulProxy
 @EnableDiscoveryClient
@@ -1137,19 +1167,29 @@ class ReservationApiGateway {
                 .collect(Collectors.toList());
     }
 }
-```
+----
 
 Test
   http://localhost:9999/reservations/names
 
-```json
-["Josh","Thivakar","Andr�","Thomas","Markus","Patrick","Mugdin","Uwe"
+[source, js]
+----
+[
+    "Josh",
+    "Thivakar",
+    "André",
+    "Thomas",
+    "Markus",
+    "Patrick",
+    "Mugdin",
+    "Uwe"
 ]
-```
+----
 
 Without Feign is more code
 
-```
+[source, java]
+----
     @Bean
     @LoadBalanced
     RestTemplate restTemplate() {
@@ -1158,17 +1198,18 @@ Without Feign is more code
 
   // uses service ID not absolute URL
   restTemplate.exchange("http://reservation-service/reservations", ...
-```
+----
 
 0:51:33 do not forget dependency for HATEOS
 
-pom.xml
-```xml
+.pom.xml
+[source, xml]
+----
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
-```
+----
 
 
 
@@ -1180,15 +1221,18 @@ Circuit breaker, timeouts and fallback methods are implemented with Hystrix.
 Hystrix	is a Java library which is under Apache license and originates 
 from the Netflix stack.
 
-pom.xml
-```xml
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-hystrix</artifactId>
-        </dependency>
-```
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-hystrix</artifactId>
+</dependency>
+----
 
-```java
+.ReservationApiGateway.java
+[source, java]
+----
 @RestController
 @RequestMapping("/reservations")
 class ReservationApiGateway {
@@ -1208,7 +1252,7 @@ class ReservationApiGateway {
                 .collect(Collectors.toList());
     }
 }
-```
+----
 
 
 Test 
