@@ -547,6 +547,9 @@ Now we´ve found a way to externalize configuration from the JAR, we still need 
 
 = Part 2: Spring Cloud
 
+.Spring Cloud Netflix
+image::netflix.png[Spring Cloud]
+
 == Centralized configuration
 
 [Video][0:19:20]
