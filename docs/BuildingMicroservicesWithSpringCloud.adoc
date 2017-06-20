@@ -1,0 +1,613 @@
+= Building Microservices with Spring Cloud
+Based on [Cloud Native Java (Josh Long) Published on Feb 4, 2016 at San Francisco JUG
+:toc:
+:doctype: book
+:encoding: utf-8
+:lang: en
+:toc: left
+:numbered:
+:imagesdir: images/
+
+
+== Getting Started
+
+=== Required Software
+
+Mandatory:
+
+ - JDK (1.8 or above)
+ - Spring Tool Suite ( or Eclipse/IntelliJ IDEA )
+ 
+Optional:
+
+ - Git
+ - Postman
+ - Docker (17.05.0-ce or above)
+ - Maven 3
+
+==== JDK
+
+Developing a Java Application will require you to have a current release of the Java Development Kit (JDK) on your machine.
+
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html[Download]
+
+[TIP]
+====
+As alternative to Oracle JDK8, linux Users can use OpenJDK8
+====
+
+==== IDE
+
+The *Spring Tool Suite* is an Eclipse-based development environment that is customized for developing Spring applications. It provides a ready-to-use environment to implement, debug, run, and deploy your Spring applications, including integrations for Pivotal tc Server, Pivotal Cloud Foundry, Git, Maven, AspectJ, and more.  
+
+https://spring.io/tools/sts/all[Download]
+
+[TIP]
+====
+You can use Eclipse or IntelliJ Idea too. But you will miss most of the convenience functions from Spring Tools Suite. Spring Tools Suite can also be installed as an https://marketplace.eclipse.org/content/spring-tool-suite-sts-eclipse[Eclipse Plugin].
+====
+
+
+==== Git
+
+State of the art distributed version control system. This component is optional.
+
+https://git-scm.com/download/[Download]
+
+==== Postman
+
+We will use Postman to access our service during the development.
+
+https://www.getpostman.com/[Download]
+
+
+[TIP]
+====
+You can even use cURL/HTTPie for the more hacky feeling.
+====
+
+==== Docker
+
+Docker is the containerization system with the most popularity at the moment. We will build container images containing our microservices to find our way to the cloud.
+
+https://store.docker.com/search?offering=community&type=edition[Download]
+
+==== Maven 3
+
+Maven can be used to manage our projects. We will use https://github.com/bdemers/maven-wrapper[Maven Wrapper] provided by Spring Boot, so you don´t need to install maven to your machine. 
+If Maven is installed on your machine you can just use it instead of the Maven Wrapper.
+
+[TIP]
+====
+You can also use Gradle as an alternative to Maven.
+====
+
+=== For the impatient developer
+
+
+```bash
+cd /opt/src/microservices/
+git clone https://github.com/Bato/bootiful-microservices-demo.git
+cd bootiful-microservices-demo/
+mvn package -Dmaven.test.skip=true
+```
+
+== Start from scratch
+
+=== Create a Reservation Service
+
+https://www.youtube.com/embed/SFDYdslOvu8#t=8m20s[Video]
+
+==== Setup the project: reservation-service
+
+Create a Spring Boot application 
+Bootstrap your application form http://start.spring.io/
+
+Generate a Maven project with Spring Boot 1.5.4 
+
+Project Metadata:
+    
+    Group: com.example  
+    Artifact: reservation-service  
+    Dependencies: Web,H2,Rest Repositories,JPA,Actuator,Config Client,Eureka Discovery,Zipkin Client,Stream Rabbit
+
+unzip: /opt/src/microservices/demo/reservation-service
+
+
+[TIP]
+====
+You can initalize you´re project in different ways. Using your browser on http://start.spring.io/, using Spring Tool Suite or using cURL and a simple HTTP GET.
+
+[source,bash]
+----
+cd /opt/src/microservices/demo/
+curl -sL http://start.spring.io/starter.tgz \
+     -d type=maven-project  \
+     -d bootVersion=1.5.4.RELEASE \
+     -d groupId=com.example \
+     -d artifactId=reservation-service \
+     -d name=ReservationServiceApplication \
+     -d dependencies=web,data-rest,data-jpa,h2,actuator,cloud-config-client,cloud-eureka,cloud-stream-binder-rabbit\
+     -d packageName=com.example \
+     -d packaging=jar  \
+     -d language=java  \
+     -d javaVersion=1.8 \
+     -d baseDir=reservation-service \
+     | tar -xzvf -
+----
+====
+
+You will receive a maven project with the following included features:
+
+ - *web* - Full-stack web development with Tomcat and Spring MVC 
+ - *data-jpa* - Java Persistence API including spring-data-jpa, spring-orm and Hibernate
+ - *data-rest* - Exposing Spring Data repositories over REST via spring-data-rest-webmvc
+ - *actuator* - Production ready features to help you monitor and manage your application
+ - *h2* - H2 database (with embedded support)
+ - *cloud-config-client* - spring-cloud-config Client 
+ - *cloud-eureka* - Service discovery using spring-cloud-netflix and Eureka 
+ - *cloud-stream-binder-rabbit* -  Messaging microservices with RabbitMQ 
+
+==== Import the project into you IDE
+
+Just import the maven project into your IDE. For an Eclipse based solution, select `File > Import ... > Maven > Existing Maven Projects` and point it to the root directory of you´re reservation-service
+
+==== Write you´re first service
+
+For the first service we just need three dependencies in our `pom.xml` the rest can be commented.
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+</dependency>
+----
+
+Have a look at the class `ReservationServiceApplication.java` to see a typical Spring Boot Application class.
+
+.ReservationServiceApplication.java
+[source, java]
+----
+@SpringBootApplication
+public class ReservationServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ReservationServiceApplication.class, args);
+    }
+}
+----
+
+Just run the application in Spring Tool Suite with `Run as Java Application` and point your brower at
+http://localhost:8080. The result should look like the one from the Figure (<<whitelabel_error_page>>).
+
+[#whitelabel_error_page]
+.Whitelabel Error Page
+image::whitelabel_error_page.png[Whitelabel Error Page]
+
+Another way to start your application is with the help of the *Spring Boot Maven Plugin*.
+
+.Run the service with maven
+[source, bash]
+----
+cd ./reservation-service
+./mvnw spring-boot:run
+----
+
+==== Activate Spring Boot Actuator
+
+We need to add further dependency to our service. Now our applications contains a bunch of new endpoints. All intended to let us monitor and debug our application.
+
+Further reading: http://docs.spring.io/spring-boot/docs/1.5.4.RELEASE/reference/htmlsingle/#production-ready[http://docs.spring.io/spring-boot/docs/.../#production-ready]
+
+
+List of all actuator endpoints:  
+http://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html[Actuator Endpoints]
+
+Explanation for all metrics: 
+http://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-metrics.html[Actuator Metrics]
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+----
+
+.application.properties
+[source, properties]
+----
+management.security.enabled=false
+----
+
+[TIP]
+====
+You can use curl to retrieve the data of these endpoints. 
+
+.Get the Uptime of the Service
+[source, bash]
+----
+curl -s http://localhost:8000/metrics | jq .uptime
+----
+
+.Configuration Endpoints
+[source, bash]
+----
+curl http://localhost:8080/beans
+curl http://localhost:8080/autoconfig
+curl http://localhost:8080/env
+curl http://localhost:8080/configprops
+curl http://localhost:8080/mappings
+----
+
+.Metrics Endpoints
+[source, bash]
+----
+curl http://localhost:8080/health
+curl http://localhost:8080/metrics
+curl http://localhost:8080/trace
+curl http://localhost:8080/dump
+----
+
+.Miscellaneous Endpoints
+[source, bash]
+----
+curl http://localhost:8080/info
+curl http://localhost:8080/routes
+----
+====
+
+=== The Persistence Layer with Spring Data JPA
+
+Now we want to enable a persistence layer for our service. So add the following dependencies to your `pom.xml`.
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+----
+
+.Reservation.java
+[source, java]
+----
+@Entity
+class Reservation {
+
+	@Id
+	@GeneratedValue
+	private Long id;  // id
+
+	private String reservationName;  // reservation_name
+
+    Reservation() {// why JPA why?? 
+    }
+
+    public Reservation(String reservationName) {
+        this.reservationName = reservationName;
+    }
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getReservationName() {
+		return reservationName;
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation{" +
+				"id=" + id +
+				", reservationName='" + reservationName + '\'' +
+				'}';
+	}
+}
+----
+
+Expose your entity as a RestFul Service with the help of *spring-data-rest*.
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-rest</artifactId>
+</dependency>
+----
+
+.ReservationRepository.java
+[source, java]
+----
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long> {
+
+	@RestResource(path = "by-name")
+	Collection<Reservation> findByReservationName(@Param("rn") String rn);
+}
+----
+
+At runtime, Spring Data REST will create an implementation of this interface 
+automatically. Then it will use the @RepositoryRestResource annotation to 
+direct Spring MVC to create RESTful endpoints at /reservations.
+
+    Spring Data REST uses the HAL format for JSON output. It is flexible and 
+    offers a convenient way to supply links adjacent to the data that is 
+    served. 
+
+HAL - Hypertext Application Language
+HAL is a simple format that gives a consistent and easy way to hyperlink between resources in your API.
+
+
+[Accessing JPA Data with REST][Link04]
+
+=== Load demo data
+
+We will now load some demo data to the database. To make development-life a bit easier, we will choose a in-memory 
+java database called: H2DB. We introduce this new dependency to our *pom.xml*. Spring Boot will take care of the 
+rest and configure our application to use this DB.
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+----
+
+
+Callback runner pass the arguments from main(String[] args). The Callback runner will load the sample data on
+application start.
+
+.SampleDataCLR.java
+[source, java]
+----
+@Component
+class SampleDataCLR implements CommandLineRunner {
+
+    private final ReservationRepository reservationRepository;
+
+    @Autowired
+    public SampleDataCLR(ReservationRepository reservationRepository) {
+        this.reservationRepository = reservationRepository;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        Stream.of("Josh", "Thivakar", "André", "Thomas", "Markus",
+                "Uwe", "Patrick", "Mugdin")
+                .forEach(name -> reservationRepository.save(new Reservation(name)));
+
+        reservationRepository.findAll().forEach(System.out::println);
+    }
+}
+----
+
+Wait for the application to start and then access the endpoint http://localhost:8080/reservations You should receive the following
+output in your browser:
+
+.Reservations service response
+[source, js]
+----
+{
+  "_embedded": {
+    "reservations": [
+      {
+        "_links": {
+          "reservation": {
+            "href": "http://localhost:8080/reservations/1"
+          },
+          "self": {
+            "href": "http://localhost:8080/reservations/1"
+          }
+        },
+        "reservationName": "Josh"
+      },
+      {
+        "_links": {
+          "reservation": {
+            "href": "http://localhost:8080/reservations/2"
+          },
+          "self": {
+            "href": "http://localhost:8080/reservations/2"
+          }
+        },
+        "reservationName": "Thivakar"
+      },
+      {
+        "_links": {
+          "reservation": {
+            "href": "http://localhost:8080/reservations/8"
+          },
+          "self": {
+            "href": "http://localhost:8080/reservations/8"
+          }
+        },
+        "reservationName": "Mugdin"
+      }
+    ]
+  },
+  "_links": {
+    "profile": {
+      "href": "http://localhost:8080/profile/reservations"
+    },
+    "search": {
+      "href": "http://localhost:8080/reservations/search"
+    },
+    "self": {
+      "href": "http://localhost:8080/reservations{?page,size,sort}",
+      "templated": true
+    }
+  },
+  "page": {
+    "number": 0,
+    "size": 20,
+    "totalElements": 8,
+    "totalPages": 1
+  }
+}
+----
+
+[TIP]
+====
+You can request the same data with cURL:
+
+[source, bash]
+----
+curl -s -H "Accept: application/json" http://localhost:8080/reservations
+
+http://localhost:8080/
+http://localhost:8080/reservations
+http://localhost:8080/reservations/1
+http://localhost:8080/reservations?page=1&size=2
+
+http://localhost:8080/reservations/search
+http://localhost:8080/reservations/search/by-name?rn=Josh
+
+curl -sL http://localhost:8080/reservations | jq ._embedded.reservations[].reservationName
+
+curl -iX OPTIONS   http://localhost:8000/reservations
+
+curl -X POST \
+  http://localhost:8000/reservations \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  -d '{"reservationName": "Kenny"}'
+----
+
+====
+
+[NOTE]
+====
+HATEOAS, an abbreviation for Hypermedia As The Engine Of Application State, is 
+a constraint of the REST application architecture that distinguishes it from 
+most other network application architectures.
+====
+
+=== Configure your application
+
+.application.properties
+[source, properties]
+----
+server.port=8010
+
+# Show or not log for each sql query
+# spring.jpa.show-sql = false
+# spring.jpa.open-in-view=false
+
+# Hibernate ddl auto (create, create-drop, update)
+# validate | update | create | create-drop
+# spring.jpa.hibernate.ddl-auto=validate
+----
+
+Start your service and validate that it´s listening on port *8010*.
+
+    Problem is that tis conficuration is saved in jar
+    The twelve-factor app princip  III. Config : Store config in the environment
+    https://12factor.net/config
+    The twelve-factor app is a methodology for building software-as-a-service apps
+
+.Externalize configuration with application properties
+[source, bash]
+----
+cd /opt/src/microservices/demo/reservation-service
+mvn clean install
+java -Dserver.port=8030 -jar target/reservation-service-0.0.1-SNAPSHOT.jar
+----
+
+Start your service and validate that it´s listening on port *8030*.
+
+http://localhost:8030/reservations
+
+.Externalize configuration with environment properties
+[source, bash]
+----
+export SERVER_PORT=8050
+mvn clean package
+java -jar target/reservation-service-0.0.1-SNAPSHOT.jar
+----
+
+Now we´ve found a way to externalize configuration from the JAR, we still need to restart the service as soon as the configuration changes.
+
+=== Centralized configuration
+
+Config server enables us to change the properties without booting or rebuilding the application.
+
+Generate a Maven project with Spring Boot 1.5.4 
+
+.Project Metadata  
+    Group: com.example  
+    Artifact : config-service  
+    Java: 1.8  
+    Dependencies:  
+      Config Server 
+
+unzip in /opt/src/microservices/demo/config-service and import the project into Spring Tool Suite/Eclipse. 
+
+[TIP]
+====
+You can initalize you´re project in different ways. Using your browser on http://start.spring.io/, using Spring Tool Suite or using cURL and a simple HTTP GET.
+
+[source, bash]
+----
+curl -sL http://start.spring.io/starter.tgz \
+     -d type=maven-project  \
+     -d bootVersion=1.5.4.RELEASE \
+     -d groupId=com.example \
+     -d artifactId=config-service \
+     -d name=ConfigServiceApplication \
+     -d dependencies=cloud-config-server \
+     -d packageName=com.example \
+     -d packaging=jar  \
+     -d language=java \
+     -d javaVersion=1.8  \
+     -d baseDir=config-service \
+     | tar -xzvf - 
+----
+====
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-cloud-config-server</artifactId>
+</dependency>
+----
+
+ - *cloud-config-client* - Spring-cloud-config Client
+ - *cloud-config-server* - Central management for configuration via a git or svn
+
+Now just add the annotation `@EnableConfigServer` to your *ConfigServiceApplication*.
+
+.ConfigServiceApplication.java
+[source, java]
+----
+@EnableConfigServer
+@SpringBootApplication
+public class ConfigServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServiceApplication.class, args);
+    }
+}
+----
+
+.applcation.properties (with config service)
+[source, properties]
+----
+server.port=8888
+spring.cloud.config.server.git.uri=https://github.com/Bato/bootiful-microservices-config.git
+management.security.enabled=false
+---- 
