@@ -96,7 +96,7 @@ mvn package -Dmaven.test.skip=true
 
 == Spring Boot Application: reservation-service
 
-https://www.youtube.com/embed/SFDYdslOvu8#t=8m20s[Video]
+https://www.youtube.com/embed/5q8B6lYhFvE#t=8m20s[Video]
 
 === Setup the project: reservation-service
 
