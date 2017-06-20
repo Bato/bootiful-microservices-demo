@@ -97,7 +97,7 @@ mvn package -Dmaven.test.skip=true
 
 == Spring Boot Application: reservation-service
 
-https://www.youtube.com/embed/SFDYdslOvu8#t=8m20s[Video]
+https://www.youtube.com/embed/5q8B6lYhFvE#t=8m20s[Video]
 
 === Setup the project: reservation-service
 
@@ -607,9 +607,13 @@ curl -sL http://start.spring.io/starter.tgz \
 File > Import ... > Maven > Existing Maven Projects:  
     Root dierectory: /opt/src/microservices/demo/config-service
 
-=== @EnableConfigServer
+=== Stand up a Config Server
 
 [Video][0:20:28]
+
+You’ll first need a Config Service to act as a sort of intermediary between your Spring applications 
+and a typically version-controlled repository of configuration files. You can use Spring Cloud’s 
+@EnableConfigServer to standup a config server that other applications can talk to. 
 
 Now just add the annotation `@EnableConfigServer` to your *ConfigServiceApplication*.
 
