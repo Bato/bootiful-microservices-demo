@@ -92,13 +92,13 @@ cd bootiful-microservices-demo/
 mvn package -Dmaven.test.skip=true
 ```
 
-== Start from scratch
+= Start from scratch
 
-=== Create a Reservation Service
+== Spring Boot Application: reservation-service
 
 https://www.youtube.com/embed/SFDYdslOvu8#t=8m20s[Video]
 
-==== Setup the project: reservation-service
+=== Setup the project: reservation-service
 
 Create a Spring Boot application 
 Bootstrap your application form http://start.spring.io/
@@ -148,11 +148,9 @@ You will receive a maven project with the following included features:
  - *cloud-eureka* - Service discovery using spring-cloud-netflix and Eureka 
  - *cloud-stream-binder-rabbit* -  Messaging microservices with RabbitMQ 
 
-==== Import the project into you IDE
+=== Import Maven Project in Sping Tool Suite
 
 Just import the maven project into your IDE. For an Eclipse based solution, select `File > Import ... > Maven > Existing Maven Projects` and point it to the root directory of you´re reservation-service
-
-==== Write you´re first service
 
 For the first service we just need three dependencies in our `pom.xml` the rest can be commented.
 
@@ -199,7 +197,7 @@ cd ./reservation-service
 ./mvnw spring-boot:run
 ----
 
-==== Activate Spring Boot Actuator
+=== Actuator endpoints in reservation-service
 
 We need to add further dependency to our service. Now our applications contains a bunch of new endpoints. All intended to let us monitor and debug our application.
 
@@ -314,6 +312,8 @@ class Reservation {
 }
 ----
 
+=== JPA Repository
+
 Expose your entity as a RestFul Service with the help of *spring-data-rest*.
 
 .pom.xml
@@ -350,22 +350,7 @@ HAL is a simple format that gives a consistent and easy way to hyperlink between
 
 [Accessing JPA Data with REST][Link04]
 
-=== Load demo data
-
-We will now load some demo data to the database. To make development-life a bit easier, we will choose a in-memory 
-java database called: H2DB. We introduce this new dependency to our *pom.xml*. Spring Boot will take care of the 
-rest and configure our application to use this DB.
-
-.pom.xml
-[source, xml]
-----
-<dependency>
-    <groupId>com.h2database</groupId>
-    <artifactId>h2</artifactId>
-    <scope>runtime</scope>
-</dependency>
-----
-
+=== CommandLineRunner
 
 Callback runner pass the arguments from main(String[] args). The Callback runner will load the sample data on
 application start.
@@ -393,6 +378,25 @@ class SampleDataCLR implements CommandLineRunner {
     }
 }
 ----
+
+=== Run as java Application
+
+We will now load some demo data to the database. To make development-life a bit easier, we will choose a in-memory 
+java database called: H2DB. We introduce this new dependency to our *pom.xml*. Spring Boot will take care of the 
+rest and configure our application to use this DB.
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
+----
+
+
+
 
 Wait for the application to start and then access the endpoint http://localhost:8080/reservations You should receive the following
 output in your browser:
@@ -495,7 +499,7 @@ a constraint of the REST application architecture that distinguishes it from
 most other network application architectures.
 ====
 
-=== Configure your application
+=== application.properties 
 
 .application.properties
 [source, properties]
@@ -540,9 +544,13 @@ java -jar target/reservation-service-0.0.1-SNAPSHOT.jar
 
 Now we´ve found a way to externalize configuration from the JAR, we still need to restart the service as soon as the configuration changes.
 
-=== Centralized configuration
+== Centralized configuration
+
+[Video][0:19:20]
 
 Config server enables us to change the properties without booting or rebuilding the application.
+
+=== Generate a Maven project: config-service
 
 Generate a Maven project with Spring Boot 1.5.4 
 
@@ -553,7 +561,7 @@ Generate a Maven project with Spring Boot 1.5.4
     Dependencies:  
       Config Server 
 
-unzip in /opt/src/microservices/demo/config-service and import the project into Spring Tool Suite/Eclipse. 
+unzip in /opt/src/microservices/demo/config-service. 
 
 [TIP]
 ====
@@ -588,6 +596,17 @@ curl -sL http://start.spring.io/starter.tgz \
 
  - *cloud-config-client* - Spring-cloud-config Client
  - *cloud-config-server* - Central management for configuration via a git or svn
+ 
+=== Import Maven Project in Eclipse
+
+[Video][0:19:56]
+
+File > Import ... > Maven > Existing Maven Projects:  
+    Root dierectory: /opt/src/microservices/demo/config-service
+
+=== @EnableConfigServer
+
+[Video][0:20:28]
 
 Now just add the annotation `@EnableConfigServer` to your *ConfigServiceApplication*.
 
@@ -604,10 +623,595 @@ public class ConfigServiceApplication {
 }
 ----
 
-.applcation.properties (with config service)
+=== application.properties
+
+.application.properties (with config service)
 [source, properties]
 ----
 server.port=8888
 spring.cloud.config.server.git.uri=https://github.com/Bato/bootiful-microservices-config.git
 management.security.enabled=false
----- 
+----
+
+[TIP]
+====
+Take a look at the github repository at https://github.com/Bato/bootiful-microservices-config.git and take 
+a look at these config files.
+====
+
+=== Run as java Application ConfigServiceApplication
+
+[Video][0:22:00]
+
+You can start the application with `mvn spring-boot:run`.
+
+    http://localhost:8888/health  
+    http://localhost:8888/env  
+    http://localhost:8888/reservation-service/master  
+    
+.Result of http://localhost:8888/reservation-service/master
+[source, js]
+----
+{
+	name: "reservation-service",
+	profiles: ["master"],
+	label: null,
+	version: null,
+	propertySources: [{
+		name: "classpath:/config/reservation-service.properties",
+		source: {
+			server.port: "${PORT:8000}",
+			message: "HELLO WORLD"
+		}
+	}]
+}
+----
+
+=== Revisit reservation-service
+
+
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-cloud-starter-config</artifactId>
+</dependency>
+----
+
+Rename *application.properties* to *bootstrap.properties*
+
+[source, properties]
+----
+# server.port=8010
+spring.application.name=reservation-service
+spring.cloud.config.uri=${vcap.services.config-service.credentials.uri:http://localhost:8888}
+----
+
+Service ID is: reservation-service
+
+.bootiful-microservices-config/reservation-service.properties
+[source, properties]
+----
+server.port=${PORT:8000}
+message = Hello World?
+----
+
+=== MessageRestController
+
+[Video][0:24:00]
+
+[source, java]
+----
+@RefreshScope
+@RestController
+class MessageRestController {
+
+	private final String message;
+
+	@Autowired
+	public MessageRestController(@Value("${message}") String message) {
+		this.message = message;
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/message")
+	String read() {
+		return this.message;
+	}
+}
+----
+
+=== Test for central configuration
+
+[Video][0:25:0]
+
+Run as java Application ReservationServiceApplication
+
+http://localhost:8000/reservations
+http://localhost:8000/message
+    HELLO WORLD
+    
+edit reservation-service.properties 
+message:HELLO WORLD !!!!!! 
+
+git commit -a -m YOLO
+YOLO is an acronym for "you only live once".
+
+Config Server sieht die �nderungen sofort 
+http://localhost:8888/reservation-service/master
+
+Client (reservation-service) sieht den alten Wert noch.
+http://localhost:8000/message
+    HELLO WORLD
+    
+Wir brauchen refresh Funktion aus dem Actuator (@RefreshScope)
+
+Empty post -d{}
+`curl -d{} http://localhost:8000/refresh`
+
+Client (reservation-service) sieht nun den neuen Wert.
+http://localhost:8000/message
+    HELLO WORLD !!!!! 
+    
+== Service Regitry - Eureka   
+
+[Video][0:31:00]
+
+DNS and cloud load balancer nicht wissen ob service erreichber ist
+Client hängt wenn service nicht erreichbar ist
+
+client spec.  load balencer 
+
+ * DNS Load Balancing
+ * Round Robin Load Balancing
+ 
+=== Generate a Maven project eureka-services [32:50]
+
+Bootstrap your application form http://start.spring.io/ 
+
+Generate a Maven project with Spring Boot 1.5.4
+    
+.Project Metadata 
+    Group: com.example  
+    Artifact : eureka-service  
+    Java: 1.8  
+    Dependencies  
+      Eureka Server,Config Client
+    
+unzip in /opt/src/microservices/demo/eureka-service
+
+[TIP]
+====
+You can initalize you´re project in different ways. Using your browser on http://start.spring.io/, using Spring Tool Suite or using cURL and a simple HTTP GET.
+
+[source,bash]
+----
+curl -sL http://start.spring.io/starter.tgz \
+     -d type=maven-project \
+     -d bootVersion=1.5.4.RELEASE \
+     -d groupId=com.example \
+     -d artifactId=eureka-service \
+     -d name=EurekaServiceApplication \
+     -d dependencies=cloud-config-client,cloud-eureka-server,actuator \
+     -d packageName=com.example \
+     -d packaging=jar \
+     -d language=java \
+     -d javaVersion=1.8 \
+     -d baseDir=eureka-service \
+     | tar -xzvf - 
+----
+====
+
+eureka-service\pom.xml
+    <artifactId>spring-cloud-starter-config</artifactId>
+    <artifactId>spring-cloud-starter-eureka-server</artifactId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-cloud-starter-config</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-cloud-starter-eureka-server</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+----
+
+ - *cloud-config-client* - spring-cloud-config Client
+ - *cloud-eureka* - Service discovery using spring-cloud-netflix and Eureka
+ - *cloud-eureka-server* - spring-cloud-netflix Eureka
+
+=== Enable Eureka Server
+
+.EurekaServiceApplication.java
+[source, java]
+----
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@EnableEurekaServer
+@SpringBootApplication
+public class EurekaServiceApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaServiceApplication.class, args);
+    }
+}
+----
+
+.bootstrap.properties
+[source, properties]
+----
+spring.application.name=eureka-service
+spring.cloud.config.uri=${vcap.services.config-service.credentials.uri:http://localhost:8888}
+----
+
+.bootiful-microservices-config/eureka-service.properties
+[source, properties]
+----
+server.port=${PORT:8761}
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+----
+
+=== Test links
+
+http://localhost:8888/eureka-service/master
+http://localhost:8761/
+
+=== Revisit reservation-service
+
+[video, 35:57]
+
+.reservation-service\pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-eureka</artifactId>
+</dependency>
+----
+
+.ReservationServiceApplication.java
+[source, java]
+----
+@EnableDiscoveryClient
+@SpringBootApplication
+public class ReservationServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ReservationServiceApplication.class, args);
+	}
+}
+----
+
+=== Test links
+
+http://localhost:8761/
+
+Instances currently registered with Eureka
+
+    Application: RESERVATION-SERVICE 
+    AMIs: n/a (1)
+    Availability Zones: (1)
+    Status: UP (1) - callmon2.cad-schroer.de:reservation-service:8000
+
+curl -sL http://localhost:8761/eureka/apps 
+curl -sL http://localhost:8761/eureka/apps/RESERVATION-SERVICE
+curl -s -H "Accept: application/json" http://localhost:8761/eureka/apps | jq .applications.application[].name
+
+== Edge Server (reservation-client)
+
+[Video][0:38:20]
+
+Edge Server functions:
+ * microservice proxy
+ * API Gateway
+ 
+a Door man for the application
+ 
+=== Generate a Maven project: reservation-client
+
+[Video][0:36:20]
+
+Bootstrap your application form http://start.spring.io/ [Video][0:36:40]
+
+Generate a Maven project with Spring Boot 1.5.4  
+    
+.Project Metadata
+    Group: com.example  
+    Artifact: reservation-client  
+    Java: 1.8  
+    Dependencies: Feign,Config Client,Eureka Discovery, Stream Rabbit,Zipkin Client,Hystrix,Zuul,Cloud OAuth2,HATEOAS,Web,Actuator
+    
+unzip in /opt/src/microservices/demo/reservation-client   
+
+[TIP]
+====
+You can initalize you´re project in different ways. Using your browser on http://start.spring.io/, using Spring Tool Suite or using cURL and a simple HTTP GET.
+
+[source,bash]
+----
+curl -sL http://start.spring.io/starter.tgz  \
+     -d type=maven-project  \
+     -d bootVersion=1.5.4.RELEASE \
+     -d groupId=com.example \
+     -d artifactId=reservation-client \
+     -d name=ReservationClientApplication \
+     -d dependencies=web,actuator,data-rest,hateoas,cloud-config-client,cloud-eureka,cloud-feign,cloud-zuul,cloud-hystrix,cloud-oauth2,cloud-starter-zipkin \
+     -d packageName=com.example \
+     -d packaging=jar \
+     -d language=java \
+     -d javaVersion=1.8 \
+     -d baseDir=reservation-client \
+     | tar -xzvf -
+----
+====
+
+.reservation-client/pom.xml
+[source, xml]
+----
+        <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+            <artifactId>spring-cloud-starter-eureka</artifactId>
+            <artifactId>spring-cloud-starter-zuul</artifactId>
+
+            <artifactId>spring-cloud-starter-feign</artifactId>
+
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+----
+
+list of dependencies identifiers: 
+(the full dependency list curl https://start.spring.io > metata-data.txt)
+web 
+ - Full-stack web development with Tomcat and Spring MVC
+data-jpa
+ - Java Persistence API including spring-data-jpa, spring-orm and Hibernate
+data-rest
+ - Exposing Spring Data repositories over REST via spring-data-rest-webmvc
+ actuator
+  - Production ready features to help you monitor and manage your application 
+hateoas
+ - HATEOAS-based RESTful services 
+
+cloud-config-client
+ -spring-cloud-config Client 
+cloud-eureka
+ - Service discovery using spring-cloud-netflix and Eureka 
+cloud-hystrix
+ - Circuit breaker with spring-cloud-netflix Hystrix 
+cloud-zuul
+ - Intelligent and programmable routing with spring-cloud-netflix Zuul
+cloud-feign 
+ - Declarative REST clients with spring-cloud-netflix Feign 
+cloud-stream-binder-rabbit 
+ -Messaging microservices with RabbitMQ
+
+cloud-hystrix-dashboard
+ - Circuit breaker dashboard with spring-cloud-netflix Hystrix
+cloud-starter-zipkin
+ - Distributed tracing with an existing Zipkin installation and spring-cloud-sleuth-zipkin. Alternatively, consider Sleuth Stream.|
+cloud-oauth2
+ - OAuth2 and distributed application patterns with spring-cloud-security 
+
+
+=== Import Maven Project in Eclipse
+
+File > Import ... > Maven > Existing Maven Projects:
+    Root dierectory: /opt/src/microservices/demo/reservation-client
+
+
+/opt/dev/wss/ws_bootiful_microservices_demo
+
+```java
+@EnableDiscoveryClient
+@SpringBootApplication
+public class ReservationClientApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ReservationClientApplication.class, args);
+	}
+}
+```
+
+bootstrap.properties
+
+spring.application.name=reservation-client
+spring.cloud.config.uri=${vcap.services.config-service.credentials.uri:http://localhost:8888}
+
+bootiful-microservices-config/reservation-client.properties
+
+server.port=${PORT:9999}
+
+
+=== Zuul as microservices proxy [Video][0:42.30]
+
+enable Zuul
+
+```java
+@EnableZuulProxy
+@EnableDiscoveryClient
+@SpringBootApplication
+public class ReservationClientApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ReservationClientApplication.class, args);
+    }
+}
+```
+
+Proxy from:
+    http://localhost:9999/reservation-service/reservations
+to
+    http://localhost:8000/reservations
+
+*reservation-service* is service ID resoled by Zuul
+
+
+=== api-gateway and protokol tranformation 
+
+[Video][0:45.00]
+
+with api-gateway we can enrich or transform request,  ptotokol or even ressource 
+
+Transform reservation to just names e.g. ["Thivakar","Andr�","Uwe"]
+Endpoint should be:
+  http://localhost:9999/reservations/names
+
+we use  feign instead of @LoadBalanced RestTemplate
+@EnableFeignClients do Load balancing out of the box
+
+pom.xml
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
+        </dependency>
+pom.xml
+```
+
+
+```java
+@EnableFeignClients
+@EnableZuulProxy
+@EnableDiscoveryClient
+@SpringBootApplication
+public class ReservationClientApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ReservationClientApplication.class, args);
+    }
+}
+
+@FeignClient("reservation-service")
+interface ReservationReader {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/reservations")
+    // import org.springframework.hateoas.Resources;
+    Resources<Reservation> read();
+}
+
+class Reservation {
+    private String reservationName;
+
+    public String getReservationName() {
+        return reservationName;
+    }
+}
+
+@RestController
+@RequestMapping("/reservations")
+class ReservationApiGateway {
+
+    private final ReservationReader reservationReader;
+
+    @Autowired
+    public ReservationApiGateway(ReservationReader reservationReader) {
+        this.reservationReader = reservationReader;
+
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/names")
+    public Collection<String> names() {
+        return this.reservationReader
+                .read()
+                .getContent()
+                .stream()
+                .map(Reservation::getReservationName)
+                .collect(Collectors.toList());
+    }
+}
+```
+
+Test
+  http://localhost:9999/reservations/names
+
+```json
+["Josh","Thivakar","Andr�","Thomas","Markus","Patrick","Mugdin","Uwe"
+]
+```
+
+Without Feign is more code
+
+```
+    @Bean
+    @LoadBalanced
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+  // uses service ID not absolute URL
+  restTemplate.exchange("http://reservation-service/reservations", ...
+```
+
+0:51:33 do not forget dependency for HATEOS
+
+pom.xml
+```xml
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+        </dependency>
+```
+
+
+
+=== Resilience with Hystrix
+
+[Video][0:53:20]
+
+Circuit breaker, timeouts and fallback methods are implemented with Hystrix. 
+Hystrix	is a Java library which is under Apache license and originates 
+from the Netflix stack.
+
+pom.xml
+```xml
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
+        </dependency>
+```
+
+```java
+@RestController
+@RequestMapping("/reservations")
+class ReservationApiGateway {
+    ....
+    public Collection<String> fallback() {
+        return new ArrayList<>();
+    }
+
+    @HystrixCommand(fallbackMethod = "fallback")
+    @RequestMapping(method = RequestMethod.GET, value = "/names")
+    public Collection<String> names() {
+        return this.reservationReader
+                .read()
+                .getContent()
+                .stream()
+                .map(Reservation::getReservationName)
+                .collect(Collectors.toList());
+    }
+}
+```
+
+
+Test 
+http://localhost:9999/reservations/names
+    ["Josh","Uwe","..."]
+stop reservation-services
+http://localhost:9999/reservations/names
+    [ ]
