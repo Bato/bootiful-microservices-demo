@@ -1079,15 +1079,16 @@ public class ReservationClientApplication {
 }
 ----
 
-bootstrap.properties
-
+.bootstrap.properties
+[source, properties]
+----
 spring.application.name=reservation-client
 spring.cloud.config.uri=${vcap.services.config-service.credentials.uri:http://localhost:8888}
 
 bootiful-microservices-config/reservation-client.properties
 
 server.port=${PORT:9999}
-
+----
 
 === Zuul as microservices proxy
 
