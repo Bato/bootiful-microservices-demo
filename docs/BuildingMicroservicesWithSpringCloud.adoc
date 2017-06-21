@@ -7,6 +7,7 @@ Based on [Cloud Native Java (Josh Long) Published on Feb 4, 2016 at San Francisc
 :toc: left
 :numbered:
 :imagesdir: images/
+:videoLink: https://youtu.be/5q8B6lYhFvE
 
 
 == Getting Started
@@ -97,7 +98,8 @@ mvn package -Dmaven.test.skip=true
 
 == Spring Boot Application: reservation-service
 
-https://www.youtube.com/embed/5q8B6lYhFvE#t=8m20s[Video]
+{videoLink}?t=8m20s[Video]
+
 
 === Setup the project: reservation-service
 
@@ -150,6 +152,8 @@ You will receive a maven project with the following included features:
  - *cloud-stream-binder-rabbit* -  Messaging microservices with RabbitMQ 
 
 === Import Maven Project in Sping Tool Suite
+
+{videoLink}?t=09m33s[Video]
 
 Just import the maven project into your IDE. For an Eclipse based solution, select `File > Import ... > Maven > Existing Maven Projects` and point it to the root directory of you´re reservation-service
 
@@ -265,6 +269,8 @@ curl http://localhost:8080/routes
 
 === The Persistence Layer with Spring Data JPA
 
+{videoLink}?t=09m50s[Video]
+
 Now we want to enable a persistence layer for our service. So add the following dependencies to your `pom.xml`.
 
 .pom.xml
@@ -315,6 +321,8 @@ class Reservation {
 
 === JPA Repository
 
+{videoLink}?t=11m50s[Video]
+
 Expose your entity as a RestFul Service with the help of *spring-data-rest*.
 
 .pom.xml
@@ -353,6 +361,8 @@ HAL is a simple format that gives a consistent and easy way to hyperlink between
 
 === CommandLineRunner
 
+{videoLink}?t=12m23s[Video]
+
 Callback runner pass the arguments from main(String[] args). The Callback runner will load the sample data on
 application start.
 
@@ -381,6 +391,8 @@ class SampleDataCLR implements CommandLineRunner {
 ----
 
 === Run as java Application
+
+{videoLink}?t=15m50s[Video]
 
 We will now load some demo data to the database. To make development-life a bit easier, we will choose a in-memory 
 java database called: H2DB. We introduce this new dependency to our *pom.xml*. Spring Boot will take care of the 
@@ -502,6 +514,8 @@ most other network application architectures.
 
 === application.properties 
 
+{videoLink}?t=16m50s[Video]
+
 .application.properties
 [source, properties]
 ----
@@ -605,14 +619,14 @@ curl -sL http://start.spring.io/starter.tgz \
  
 === Import Maven Project in Eclipse
 
-[Video][0:19:56]
+{videoLink}?t=19m56s[Video]
 
 File > Import ... > Maven > Existing Maven Projects:  
     Root dierectory: /opt/src/microservices/demo/config-service
 
-=== Stand up a Config Server
+=== Set up a Config Server
 
-[Video][0:20:28]
+{videoLink}?t=20m28s[Video]
 
 You’ll first need a Config Service to act as a sort of intermediary between your Spring applications 
 and a typically version-controlled repository of configuration files. You can use Spring Cloud’s 
@@ -634,6 +648,8 @@ public class ConfigServiceApplication {
 ----
 
 === application.properties
+
+{videoLink}?t=21m17s[Video]
 
 .application.properties (with config service)
 [source, properties]
@@ -679,7 +695,7 @@ You can start the application with `mvn spring-boot:run`.
 
 === Revisit reservation-service
 
-
+{videoLink}?t=22m00s[Video]
 
 .pom.xml
 [source, xml]
@@ -710,7 +726,7 @@ message = Hello World?
 
 === MessageRestController
 
-[Video][0:24:00]
+{videoLink}?t=24m0s[Video]
 
 [source, java]
 ----
@@ -734,7 +750,7 @@ class MessageRestController {
 
 === Test for central configuration
 
-[Video][0:25:0]
+{videoLink}?t=25m00s[Video]
 
 Run as java Application ReservationServiceApplication
 
@@ -766,7 +782,7 @@ http://localhost:8000/message
     
 == Service Regitry - Eureka   
 
-[Video][0:31:00]
+{videoLink}?t=31m00s[Video]
 
 DNS and cloud load balancer nicht wissen ob service erreichber ist
 Client hängt wenn service nicht erreichbar ist
@@ -776,7 +792,9 @@ client spec.  load balencer
  * DNS Load Balancing
  * Round Robin Load Balancing
  
-=== Generate a Maven project eureka-services [32:50]
+=== Generate a Maven project eureka-services
+
+{videoLink}?t=38m20s[Video]
 
 Bootstrap your application form http://start.spring.io/ 
 
@@ -813,10 +831,6 @@ curl -sL http://start.spring.io/starter.tgz \
 ----
 ====
 
-eureka-service\pom.xml
-    <artifactId>spring-cloud-starter-config</artifactId>
-    <artifactId>spring-cloud-starter-eureka-server</artifactId>
-    <artifactId>spring-boot-starter-actuator</artifactId>
 
 .pom.xml
 [source, xml]
@@ -880,7 +894,7 @@ http://localhost:8761/
 
 === Revisit reservation-service
 
-[video, 35:57]
+{videoLink}?t=35m57s[Video]
 
 .reservation-service\pom.xml
 [source, xml]
@@ -921,7 +935,7 @@ curl -s -H "Accept: application/json" http://localhost:8761/eureka/apps | jq .ap
 
 == Edge Server (reservation-client)
 
-[Video][0:38:20]
+{videoLink}?t=38m20s[Video]
 
 Edge Server functions:
  * microservice proxy
@@ -931,7 +945,7 @@ a Door man for the application
  
 === Generate a Maven project: reservation-client
 
-[Video][0:36:20]
+{videoLink}?t=36m20s[Video]
 
 Bootstrap your application form http://start.spring.io/ [Video][0:36:40]
 
@@ -1072,7 +1086,10 @@ bootiful-microservices-config/reservation-client.properties
 server.port=${PORT:9999}
 
 
-=== Zuul as microservices proxy [Video][0:42.30]
+=== Zuul as microservices proxy
+
+{videoLink}?t=42m30s[Video]
+
 
 enable Zuul
 
@@ -1099,9 +1116,9 @@ to
 *reservation-service* is service ID resoled by Zuul
 
 
-=== api-gateway and protokol tranformation 
+=== api-gateway and protocol tranformation 
 
-[Video][0:45.00]
+{videoLink}?t=45m00s[Video]
 
 with api-gateway we can enrich or transform request,  ptotokol or even ressource 
 
@@ -1222,7 +1239,7 @@ Without Feign is more code
 
 === Resilience with Hystrix
 
-[Video][0:53:20]
+{videoLink}?t=53m20s[Video]
 
 Circuit breaker, timeouts and fallback methods are implemented with Hystrix. 
 Hystrix	is a Java library which is under Apache license and originates 
@@ -1262,9 +1279,17 @@ class ReservationApiGateway {
 ----
 
 
-Test 
-http://localhost:9999/reservations/names
-    ["Josh","Uwe","..."]
+Test http://localhost:9999/reservations/names
+
+[source, js]
+----
+["Josh","Uwe","..."]
+----
+
 stop reservation-services
+
 http://localhost:9999/reservations/names
-    [ ]
+[source, js]
+----
+[ ]
+----
