@@ -929,9 +929,12 @@ Instances currently registered with Eureka
     Availability Zones: (1)
     Status: UP (1) - callmon2.cad-schroer.de:reservation-service:8000
 
+[source, bash]
+----
 curl -sL http://localhost:8761/eureka/apps 
 curl -sL http://localhost:8761/eureka/apps/RESERVATION-SERVICE
 curl -s -H "Accept: application/json" http://localhost:8761/eureka/apps | jq .applications.application[].name
+----
 
 == Edge Server (reservation-client)
 
