@@ -701,7 +701,7 @@ You can start the application with `mvn spring-boot:run`.
 [source, xml]
 ----
 <dependency>
-  <groupId>org.springframework.boot</groupId>
+  <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-starter-config</artifactId>
 </dependency>
 ----
