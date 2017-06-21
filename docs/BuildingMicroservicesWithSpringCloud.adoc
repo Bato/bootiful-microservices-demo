@@ -1126,7 +1126,7 @@ to
 
 with api-gateway we can enrich or transform request,  ptotokol or even ressource 
 
-Transform reservation to just names e.g. ["Thivakar","Andr�","Uwe"]
+Transform reservation to just names e.g. ["Thivakar","André","Uwe"]
 Endpoint should be:
   
   http://localhost:9999/reservations/names
