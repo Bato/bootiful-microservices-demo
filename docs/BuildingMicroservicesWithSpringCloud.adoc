@@ -112,7 +112,7 @@ Project Metadata:
     
     Group: com.example  
     Artifact: reservation-service  
-    Dependencies: Web,H2,Rest Repositories,JPA,Actuator,Config Client,Eureka Discovery,Zipkin Client,Stream Rabbit
+    Dependencies: Web
 
 unzip: /opt/src/microservices/demo/reservation-service
 
@@ -130,7 +130,7 @@ curl -sL http://start.spring.io/starter.tgz \
      -d groupId=com.example \
      -d artifactId=reservation-service \
      -d name=ReservationServiceApplication \
-     -d dependencies=web,data-rest,data-jpa,h2,actuator,cloud-config-client,cloud-eureka,cloud-stream-binder-rabbit\
+     -d dependencies=web \
      -d packageName=com.example \
      -d packaging=jar  \
      -d language=java  \
@@ -143,13 +143,6 @@ curl -sL http://start.spring.io/starter.tgz \
 You will receive a maven project with the following included features:
 
  - *web* - Full-stack web development with Tomcat and Spring MVC 
- - *data-jpa* - Java Persistence API including spring-data-jpa, spring-orm and Hibernate
- - *data-rest* - Exposing Spring Data repositories over REST via spring-data-rest-webmvc
- - *actuator* - Production ready features to help you monitor and manage your application
- - *h2* - H2 database (with embedded support)
- - *cloud-config-client* - spring-cloud-config Client 
- - *cloud-eureka* - Service discovery using spring-cloud-netflix and Eureka 
- - *cloud-stream-binder-rabbit* -  Messaging microservices with RabbitMQ 
 
 === Import Maven Project in Sping Tool Suite
 
@@ -204,9 +197,14 @@ cd ./reservation-service
 
 === Actuator endpoints in reservation-service
 
-We need to add further dependency to our service. Now our applications contains a bunch of new endpoints. All intended to let us monitor and debug our application.
+We need to add further dependency to our service. 
 
-Further reading: http://docs.spring.io/spring-boot/docs/1.5.4.RELEASE/reference/htmlsingle/#production-ready[http://docs.spring.io/spring-boot/docs/.../#production-ready]
+ - *actuator* - Production ready features to help you monitor and manage your application
+
+Now our applications contains a bunch of new endpoints. All intended to let us monitor and debug our application.
+
+
+Further reading: http://docs.spring.io/spring-boot/docs/1.5.4.RELEASE/reference/htmlsingle/#production-ready[Spring Boot Actuator: Production-ready features]
 
 
 List of all actuator endpoints:  
@@ -273,6 +271,8 @@ curl http://localhost:8080/routes
 
 Now we want to enable a persistence layer for our service. So add the following dependencies to your `pom.xml`.
 
+ - *data-jpa* - Java Persistence API including spring-data-jpa, spring-orm and Hibernate
+
 .pom.xml
 [source, xml]
 ----
@@ -324,6 +324,7 @@ class Reservation {
 {videoLink}?t=11m50s[Video]
 
 Expose your entity as a RestFul Service with the help of *spring-data-rest*.
+ - *data-rest* - Exposing Spring Data repositories over REST via spring-data-rest-webmvc
 
 .pom.xml
 [source, xml]
@@ -398,6 +399,8 @@ We will now load some demo data to the database. To make development-life a bit 
 java database called: H2DB. We introduce this new dependency to our *pom.xml*. Spring Boot will take care of the 
 rest and configure our application to use this DB.
 
+ - *h2* - H2 database (with embedded support)
+
 .pom.xml
 [source, xml]
 ----
@@ -407,8 +410,6 @@ rest and configure our application to use this DB.
     <scope>runtime</scope>
 </dependency>
 ----
-
-
 
 
 Wait for the application to start and then access the endpoint http://localhost:8080/reservations You should receive the following
@@ -516,6 +517,11 @@ most other network application architectures.
 
 {videoLink}?t=16m50s[Video]
 
+Various properties can be specified inside application.properties/application.yml file or as command line switches. 
+This section provides a list of common Spring Boot properties:
+https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html[Common application properties]
+
+
 .application.properties
 [source, properties]
 ----
@@ -532,7 +538,7 @@ server.port=8010
 
 Start your service and validate that it´s listening on port *8010*.
 
-    Problem is that tis conficuration is saved in jar
+    Problem is that this conficuration is saved in jar
     The twelve-factor app princip  III. Config : Store config in the environment
     https://12factor.net/config
     The twelve-factor app is a methodology for building software-as-a-service apps
@@ -561,8 +567,6 @@ Now we´ve found a way to externalize configuration from the JAR, we still need 
 
 = Part 2: Spring Cloud
 
-.Spring Cloud Netflix
-image::netflix.png[Spring Cloud]
 
 == Centralized configuration
 
@@ -779,7 +783,12 @@ Empty post -d{}
 Client (reservation-service) sieht nun den neuen Wert.
 http://localhost:8000/message
     HELLO WORLD !!!!! 
-    
+
+== Spring Cloud Netflix
+
+
+image::netflix.png[Spring Cloud]
+
 == Service Regitry - Eureka   
 
 {videoLink}?t=31m00s[Video]
@@ -958,7 +967,7 @@ Generate a Maven project with Spring Boot 1.5.4
     Group: com.example  
     Artifact: reservation-client  
     Java: 1.8  
-    Dependencies: Feign,Config Client,Eureka Discovery, Stream Rabbit,Zipkin Client,Hystrix,Zuul,Cloud OAuth2,HATEOAS,Web,Actuator
+    Dependencies: Web,Actuator,HATEOAS,Config Client,Eureka Discovery,Zuul,Feign
     
 unzip in /opt/src/microservices/demo/reservation-client   
 
@@ -974,7 +983,7 @@ curl -sL http://start.spring.io/starter.tgz  \
      -d groupId=com.example \
      -d artifactId=reservation-client \
      -d name=ReservationClientApplication \
-     -d dependencies=web,actuator,data-rest,hateoas,cloud-config-client,cloud-eureka,cloud-feign,cloud-zuul,cloud-hystrix,cloud-oauth2,cloud-starter-zipkin \
+     -d dependencies=web,actuator,data-rest,hateoas,cloud-config-client,cloud-eureka,cloud-feign,cloud-zuul \
      -d packageName=com.example \
      -d packaging=jar \
      -d language=java \
@@ -1021,21 +1030,6 @@ curl -sL http://start.spring.io/starter.tgz  \
   <groupId>org.springframework.cloud</groupId>
   <artifactId>spring-cloud-starter-feign</artifactId>
 </dependency>
-
-<dependency>
-  <groupId>org.springframework.cloud</groupId>
-  <artifactId>spring-cloud-starter-hystrix</artifactId>
-</dependency>
-
-<dependency>
-  <groupId>org.springframework.cloud</groupId>
-  <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
-</dependency>
-
-<dependency>
-  <groupId>org.springframework.cloud</groupId>
-  <artifactId>spring-cloud-starter-zipkin</artifactId>
-</dependency>
 ----
 
 list of dependencies identifiers: 
@@ -1049,14 +1043,8 @@ list of dependencies identifiers:
 
 - *cloud-config-client* - spring-cloud-config Client 
 - *cloud-eureka* - Service discovery using spring-cloud-netflix and Eureka 
-- *cloud-hystrix* - Circuit breaker with spring-cloud-netflix Hystrix 
 - *cloud-zuul* - Intelligent and programmable routing with spring-cloud-netflix Zuul
 - *cloud-feign* - Declarative REST clients with spring-cloud-netflix Feign 
-- *cloud-stream-binder-rabbit* - Messaging microservices with RabbitMQ
-
-- *cloud-hystrix-dashboard* - Circuit breaker dashboard with spring-cloud-netflix Hystrix
-- *cloud-starter-zipkin* - Distributed tracing with an existing Zipkin installation and spring-cloud-sleuth-zipkin. Alternatively, consider Sleuth Stream.|
-- *cloud-oauth2* - OAuth2 and distributed application patterns with spring-cloud-security 
 
 
 === Import Maven Project in Eclipse
